@@ -1,0 +1,10 @@
+[environment]
+python-version = "3.13"
+
+[rules]
+unresolved-import = "warn"
+no-matching-overload = "ignore"
+unknown-argument = "ignore"
+unresolved-attribute = "warn"
+invalid-argument-type = "warn"
+invalid-assignment = "warn"

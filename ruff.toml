@@ -1,0 +1,127 @@
+line-length = 100
+target-version = "py313"
+
+extend-include = ["*.ipynb"]
+
+extend-exclude = [
+    "**/.venv",
+    "**/__pycache__",
+    "**/.ruff_cache",
+    "**/.ty_cache",
+    "**/.ipynb_checkpoints",
+    "data",
+    "models",
+    "archive",
+    "submissions",
+]
+
+show-fixes = true
+
+[lint]
+select = [
+    "F",    # pyflakes
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "C90",  # mccabe complexity
+    "A",    # flake8-builtins (shadowing `id`, `type`, `list`, ...)
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "DTZ",  # flake8-datetimez (naive datetimes)
+    "EXE",  # flake8-executable
+    "G",    # flake8-logging-format
+    "ICN",  # flake8-import-conventions (np / pd / plt / pl aliases)
+    "ISC",  # flake8-implicit-str-concat
+    "LOG",  # flake8-logging
+    "PIE",  # flake8-pie
+    "PT",   # flake8-pytest-style
+    "RET",  # flake8-return
+    "RSE",  # flake8-raise
+    "S",    # flake8-bandit (security)
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self (private member access)
+    "T10",  # flake8-debugger (stray breakpoint()/pdb)
+    "TID",  # flake8-tidy-imports
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+    "PD",   # pandas-vet
+    "NPY",  # numpy-specific rules
+    "PL",   # pylint
+    "TRY",  # tryceratops
+    "FLY",  # flynt
+    "PERF", # perflint
+    "FURB", # refurb
+    "RUF",  # ruff-specific rules
+]
+
+ignore = [
+    "E501",    # line length: the formatter owns wrapping
+    "ISC001",  # conflicts with the formatter
+    "N803",    # argument name should be lowercase -- `X`, `X_train` are the ML convention
+    "N806",    # variable in function should be lowercase -- same
+    "PD011",   # `.values` -- too many false positives on non-pandas objects
+    "PLR0913", # too many arguments (model/training entrypoints legitimately have many)
+    "PLR2004", # magic value comparison
+    "PLC0415", # import not at top level (lazy imports of heavy ML deps are intentional)
+    "S101",    # assert (used for shape/invariant checks)
+    "S301",    # pickle -- the standard model/artifact serialization format here
+    "S403",    # importing pickle
+    "S311",    # non-cryptographic random (fine for seeds/sampling)
+    "TRY003",  # long messages outside exception class
+    "TRY300",  # return in try rather than else
+]
+
+unfixable = [
+    "F401", # unused import -- deleting mid-notebook breaks later cells
+    "F841", # unused variable -- often an in-progress experiment
+]
+
+[lint.per-file-ignores]
+"*.ipynb" = [
+    "E402",   # imports after code: normal in exploratory notebooks
+    "F401",   # unused imports: churn while exploring, and unsafe to strip mid-notebook
+    "B018",   # bare `df.head()` as the last line of a cell is the display idiom
+    "ARG",    # scratch callbacks
+    "SLF001", # poking at library internals while exploring
+]
+"__init__.py" = ["F401"]
+
+[lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+order-by-type = true
+split-on-trailing-comma = true
+known-first-party = []
+
+[lint.flake8-import-conventions.extend-aliases]
+"polars" = "pl"
+"plotly.express" = "px"
+"plotly.graph_objects" = "go"
+"lightgbm" = "lgb"
+"xgboost" = "xgb"
+"torch.nn" = "nn"
+"torch.nn.functional" = "F"
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[lint.pylint]
+max-args = 8
+max-branches = 15
+max-statements = 60
+
+[lint.mccabe]
+max-complexity = 12
+
+[lint.flake8-builtins]
+builtins-ignorelist = ["id", "type", "input"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
