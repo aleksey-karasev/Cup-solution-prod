@@ -1,4 +1,4 @@
-# Ozon E-CUP 2026 production pipeline
+# CUP 2026 production pipeline
 
 ## Setup
 
