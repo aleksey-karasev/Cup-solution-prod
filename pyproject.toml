@@ -4,6 +4,7 @@ version = "0.0.1"
 description = "Ozon E-CUP 2026 production pipeline: training and inference"
 requires-python = "==3.13.*"
 dependencies = [
+    "captum>=0.9.0",
     "catboost>=1.2.10",
     "jupyter>=1.1.1",
     "lightgbm>=4.7.0",
@@ -18,6 +19,7 @@ dependencies = [
     "scikit-learn>=1.9.0",
     "scipy>=1.18.0",
     "seaborn>=0.13.2",
+    "shap>=0.50.0",
     "torch>=2.13.0",
     "tqdm>=4.70.0",
     "xgboost>=3.4.0",
