@@ -10,6 +10,7 @@ format:
     margin: 0.08
     slide-number: c/t
     show-slide-number: all
+    auto-stretch: false
     progress: true
     transition: slide
     transition-speed: slow
@@ -49,7 +50,7 @@ format:
 </figure>
 :::
 
-# Обзор задачи {.divider}
+# Обзор задачи {.divider .s01}
 
 ## Что требуется предсказать
 
@@ -78,7 +79,7 @@ $$\mathrm{RMSLE}=\sqrt{\frac{1}{n}\sum_i\bigl(\log(1+y_i)-\log(1+\max(0,\hat y_i
 
 ::::
 
-# EDA {.divider}
+# EDA {.divider .s02}
 
 ## Структура данных
 
@@ -145,7 +146,7 @@ $$\mathrm{RMSLE}=\sqrt{\frac{1}{n}\sum_i\bigl(\log(1+y_i)-\log(1+\max(0,\hat y_i
 :::
 ::::
 
-# Идея решения {.divider}
+# Идея решения {.divider .s03}
 
 ## Главные идеи {.smaller}
 
@@ -178,7 +179,7 @@ $$y(\text{user},\ a) = \log(1+\mathrm{gmv}^{(30)}) - \mu(a), \qquad
 скор инвертируется в $\operatorname{Cov}(z,u)$, и финальный сабмит собирается алгеброй, а не подбором.
 :::
 
-# Технологический стек {.divider}
+# Технологический стек {.divider .s04}
 
 ## Инструменты и инфраструктура {.smaller}
 
@@ -208,10 +209,10 @@ $$y(\text{user},\ a) = \log(1+\mathrm{gmv}^{(30)}) - \mu(a), \qquad
 :::
 ::::
 
-# Описание решения {.divider}
+# Описание решения {.divider .s05}
 
 
-# Преимущества и недостатки {.divider}
+# Преимущества и недостатки {.divider .s06}
 
 ## Преимущества решения {.smaller}
 
@@ -241,12 +242,12 @@ $$y(\text{user},\ a) = \log(1+\mathrm{gmv}^{(30)}) - \mu(a), \qquad
 ## Недостатки решения {.smaller}
 
 :::: {.columns}
-::: {.column width="50%"}
+::: {.column width="34%"}
 - **Тяжелый ансамбль**: долгое обучение и ресурсоъемкий инференс
 
 - **Сложная воспроизводимость**: часть ансамбля обучается на прогнозах других моделей
 :::
-::: {.column width="50%"}
+::: {.column width="66%"}
 - **Смещение выборки не устранено.** Модель обучена на панели «выживших».
   На реальном трафике доля неактивных и неплатящих выше, и уровень придётся перекалибровать
   заново.
@@ -256,7 +257,7 @@ $$y(\text{user},\ a) = \log(1+\mathrm{gmv}^{(30)}) - \mu(a), \qquad
 :::
 ::::
 
-# Итоги {.divider}
+# Итоги {.divider .s07}
 
 ## Польза для бизнеса {.smaller}
 
@@ -285,11 +286,6 @@ $$y(\text{user},\ a) = \log(1+\mathrm{gmv}^{(30)}) - \mu(a), \qquad
 **HSE Бобры** — Алексей Карасев, Джон Ким, Дмитрий Николаев, Максим Удовиченко
 :::
 
-:::: {.columns}
-::: {.column width="50%"}
 **Репозиторий**
 
-![](reports/repo_qr.png){width="100%"}
-
-:::
-::: {.column width="50%"}
+<img src="reports/repo_qr.png" width="320" style="margin:0">
