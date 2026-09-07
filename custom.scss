@@ -1,295 +1,620 @@
 /*-- scss:defaults --*/
 
-$body-bg: #0d0d10;
-$body-color: #e8e8ec;
-$link-color: #4cc9f0;
-$selection-bg: rgba(76, 201, 240, 0.3);
+// ─────────────────────────────────────────────────────────────
+// Monochrome blue on blue-tinted near-black.
+// One hue family (deep navy → steel → ice), differences carried
+// by lightness only. Every block is marked by a short blue rule.
+// ─────────────────────────────────────────────────────────────
+
+// Ground
+$c-bg:        #04070e; // slide background (near-black, blue-tinted)
+$c-panel:     #0b1322; // card / box fill
+$c-panel-2:   #0e1829; // inline code chip
+$c-code-bg:   #080d18; // code block
+$c-line:      #182541; // hairline
+$c-line-soft: #101a2e; // quieter hairline
+
+// Ink
+$c-ink:       #e8eefa; // body
+$c-ink-hi:    #ffffff; // strong / headings
+$c-math:      #eaf1ff;
+
+// Blue ladder (light → dark)
+$c-ice-hi:    #cfe3ff;
+$c-ice:       #a9cdff;
+$c-accent-hi: #6aa5ff;
+$c-accent:    #3b82f6;
+$c-steel:     #5c82b8;
+$c-deep:      #1f4b8f;
+$c-muted:     #8098bd;
+
+$body-bg: $c-bg;
+$body-color: $c-ink;
+$link-color: $c-accent-hi;
+$selection-bg: rgba(59, 130, 246, 0.35);
 
 $font-family-sans-serif:
-  "Inter",
-  -apple-system,
-  BlinkMacSystemFont,
+  "Manrope",
   "Segoe UI",
-  Roboto,
   "Helvetica Neue",
+  Helvetica,
   Arial,
   sans-serif !default;
 $font-family-monospace: "JetBrains Mono", "SFMono-Regular", Consolas, monospace !default;
 
 $presentation-font-size-root: 30px;
 $presentation-heading-font: $font-family-sans-serif;
-$presentation-heading-color: #ffffff;
-$presentation-heading-font-weight: 600;
-$presentation-h1-font-size: 2.1em;
-$presentation-h2-font-size: 1.35em;
-$presentation-h3-font-size: 1.05em;
-$presentation-line-height: 1.35;
+$presentation-heading-color: $c-ink-hi;
+$presentation-heading-font-weight: 700;
+$presentation-h1-font-size: 2.15em;
+$presentation-h2-font-size: 1.42em;
+$presentation-h3-font-size: 0.72em;
+$presentation-line-height: 1.38;
 
-$code-block-bg: #15151b;
-$code-color: #9ece6a;
+$code-block-bg: $c-code-bg;
+$code-color: $c-ice-hi;
 
 /*-- scss:mixins --*/
 
 @mixin card {
-  background: #15151b;
-  border: 1px solid #2a2a33;
-  border-radius: 10px;
-  padding: 0.7em 0.9em;
+  background-color: $c-panel;
+  border: 1px solid $c-line;
+  border-radius: 4px;
+  padding: 0.75em 0.95em;
+}
+
+// Short rule at the top-left of a block, in the given step of the ladder.
+@mixin lead-rule($color, $width: 2.2em, $thickness: 3px) {
+  background-image: linear-gradient(90deg, $color 0 $width, transparent $width);
+  background-size: 100% $thickness;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+
+@mixin label {
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 500;
 }
 
 /*-- scss:rules --*/
 
-$accent: #4cc9f0;
-$warm: #f7768e;
-$gold: #e0af68;
-$green: #9ece6a;
-$violet: #bb9af7;
-$muted: #8a8a99;
-$line: #2a2a33;
+$accent: $c-accent;
+$muted: $c-muted;
+$line: $c-line;
+
+.reveal {
+  --r-background-color: #{$c-bg};
+  --r-main-color: #{$c-ink};
+  --r-heading-color: #{$c-ink-hi};
+  --r-link-color: #{$c-accent-hi};
+  --r-link-color-hover: #{$c-ice-hi};
+  --r-link-color-dark: #{$c-accent};
+  --r-selection-background-color: #{rgba(59, 130, 246, 0.35)};
+  --r-main-font: #{$font-family-sans-serif};
+  --r-heading-font: #{$font-family-sans-serif};
+  --r-code-font: #{$font-family-monospace};
+
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.reveal .slides {
+  counter-reset: section-no;
+}
 
 .reveal .slides section {
   text-align: left;
 }
 
+.reveal a {
+  color: $c-accent-hi;
+  text-decoration-color: rgba(106, 165, 255, 0.45);
+  text-underline-offset: 0.18em;
+}
+
+.reveal a:hover {
+  color: $c-ice-hi;
+  text-decoration-color: $c-ice-hi;
+}
+
+// ── Headings ────────────────────────────────────────────────
+
+.reveal h1,
 .reveal h2 {
-  border-bottom: 1px solid $line;
-  padding-bottom: 0.25em;
-  margin-bottom: 0.55em;
+  letter-spacing: -0.022em;
+}
+
+.reveal h2 {
+  font-size: 42px; // pinned to the 1920×1080 canvas so `.smaller` slides keep the same title size
+  font-weight: 700;
+  color: $c-ink-hi;
+  border-bottom: none;
+  padding-bottom: 0.34em;
+  margin-bottom: 0.6em;
+  line-height: 1.12;
+  background-image: linear-gradient(90deg, $c-accent 0 2.2em, $c-line 2.2em 100%);
+  background-size: 100% 2px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
 }
 
 .reveal h3 {
-  color: $accent;
-  margin-top: 0.2em;
+  @include label;
+  color: $c-accent-hi;
+  font-size: 21px;
+  margin: 1.1em 0 0.5em 0;
 }
 
-.reveal ul,
-.reveal ol {
-  margin-left: 0.4em;
+.reveal h3:first-child {
+  margin-top: 0;
 }
 
-.reveal li {
-  margin-bottom: 0.32em;
+// ── Title slide ─────────────────────────────────────────────
+
+.reveal #title-slide,
+.reveal .title-slide {
+  text-align: left;
 }
 
-.reveal li::marker {
-  color: $accent;
+.reveal h1.title {
+  font-size: 64px;
+  color: $c-ink-hi;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+  margin-bottom: 0;
 }
 
-.reveal strong {
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.reveal em {
-  color: $gold;
-  font-style: normal;
-}
-
-.reveal code {
-  background: #15151b;
-  border-radius: 4px;
-  padding: 0.05em 0.3em;
-  font-size: 0.88em;
-  color: $green;
-}
-
-.reveal .slide-number {
-  background: transparent;
-  color: $muted;
-  font-size: 0.6em;
-}
-
-.reveal .footer {
-  color: $muted;
-  font-size: 0.52em;
-}
-
-.reveal .title-slide h1.title {
-  color: #ffffff;
-  line-height: 1.1;
+.reveal h1.title::before {
+  content: "";
+  display: block;
+  width: 3.4em;
+  height: 4px;
+  background: $c-accent;
+  margin-bottom: 0.55em;
 }
 
 .reveal #title-slide .subtitle,
 .reveal .title-slide .subtitle {
-  color: $accent;
-  font-size: 1.05em;
-  margin-top: 0.35em;
+  color: $c-ice;
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-top: 0.55em;
 }
 
-.reveal .title-slide .quarto-title-authors {
-  color: $muted;
+.reveal .title-slide .quarto-title-authors,
+.reveal #title-slide .quarto-title-authors,
+.reveal .title-slide .author,
+.reveal #title-slide .author {
+  @include label;
+  color: $c-steel;
+  font-size: 0.6em;
+  margin-top: 1.1em;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.reveal .quarto-title-block {
+  color: $c-ink-hi;
+}
+
+// ── Section dividers ────────────────────────────────────────
+
+.reveal section.divider {
+  counter-increment: section-no;
+  text-align: left;
+}
+
+.reveal section.divider h1,
+.reveal section.divider h2 {
+  color: $c-ink-hi;
+  font-size: 74px;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  border-bottom: none;
+  background-image: none;
+  padding-bottom: 0;
+  margin: 0;
+}
+
+.reveal section.divider h1::before,
+.reveal section.divider h2::before {
+  @include label;
+  content: "Раздел " counter(section-no, decimal-leading-zero);
+  display: block;
+  width: fit-content;
+  font-size: 0.28em;
+  letter-spacing: 0.28em;
+  color: $c-steel;
+  border-top: 3px solid $c-accent;
+  padding-top: 0.8em;
+  margin-bottom: 1.4em;
+}
+
+.reveal section.divider.no-kicker h1::before,
+.reveal section.divider.no-kicker h2::before {
+  content: "";
+  border-top: 3px solid $c-accent;
+  width: 3.4em;
+  padding-top: 0;
+  margin-bottom: 0.5em;
+}
+
+// ── Body copy ───────────────────────────────────────────────
+
+.reveal p {
+  text-wrap: pretty;
+}
+
+.reveal strong {
+  color: $c-ink-hi;
+  font-weight: 700;
+}
+
+.reveal em {
+  color: $c-ice;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.reveal ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 1em;
+}
+
+.reveal ol {
+  margin-left: 0.9em;
+  padding-left: 0;
+}
+
+.reveal li {
+  margin-bottom: 0.34em;
+  position: relative;
+}
+
+.reveal ul > li::before {
+  content: "";
+  position: absolute;
+  left: -0.82em;
+  top: 0.55em;
+  width: 0.3em;
+  height: 0.3em;
+  background: $c-accent;
+  border-radius: 1px;
+}
+
+.reveal ul ul > li::before {
+  background: $c-steel;
+  width: 0.26em;
+  height: 2px;
+  top: 0.62em;
+}
+
+.reveal ol > li::marker {
+  color: $c-accent-hi;
+  font-family: $font-family-monospace;
+  font-weight: 500;
+}
+
+// ── Code & math ─────────────────────────────────────────────
+
+.reveal code {
+  background: $c-panel-2;
+  border: 1px solid $c-line-soft;
+  border-radius: 3px;
+  padding: 0.02em 0.28em;
+  font-size: 0.86em;
+  color: $c-ice-hi;
+}
+
+.reveal pre,
+.reveal div.sourceCode {
+  background: $c-code-bg;
+  border: 1px solid $c-line;
+  border-radius: 4px;
+}
+
+.reveal pre code {
+  background: transparent;
+  border: none;
+  color: $c-ink;
+}
+
+.reveal .math,
+.reveal mjx-container,
+.reveal .katex {
+  color: $c-math;
+}
+
+.reveal mjx-container[display="true"],
+.reveal .math.display {
+  margin: 0.5em 0;
+  font-size: 0.94em;
+}
+
+// ── Chrome: slide number, footer, progress, controls ────────
+
+.reveal .slide-number {
+  background: transparent;
+  color: $c-steel;
+  font-family: $font-family-monospace;
+  font-size: 0.55em;
+  letter-spacing: 0.08em;
+}
+
+.reveal .slide-number a {
+  color: $c-steel;
+}
+
+.reveal .slide-number-a {
+  color: $c-ice;
+}
+
+.reveal .footer,
+.reveal .footer p {
+  @include label;
+  color: $c-muted;
+  font-size: 0.5em;
+  letter-spacing: 0.14em;
+}
+
+.reveal .progress {
+  height: 3px;
+  color: $c-accent;
+  background: rgba(24, 37, 65, 0.9);
+}
+
+.reveal .progress span {
+  background: $c-accent;
+}
+
+.reveal .controls {
+  color: $c-steel;
+}
+
+.reveal .controls .navigate-left,
+.reveal .controls .navigate-right,
+.reveal .controls .navigate-up,
+.reveal .controls .navigate-down {
+  &:hover {
+    color: $c-ice;
+  }
+}
+
+// ── Type scale helpers ──────────────────────────────────────
+
+.small {
+  font-size: 0.84em;
+}
+
+.smaller {
+  font-size: 0.72em;
+}
+
+.tiny {
+  font-size: 0.58em;
+  color: $c-muted;
+}
+
+.muted {
+  color: $c-muted;
+}
+
+.accent,
+.gold,
+.warm,
+.green {
+  color: $c-accent-hi;
+}
+
+.ice {
+  color: $c-ice;
+}
+
+.steel {
+  color: $c-steel;
+}
+
+.label {
+  @include label;
+  color: $c-steel;
+  font-size: 0.58em;
+}
+
+// ── Boxes: one hue, four steps of lightness ─────────────────
+
+.box {
+  @include card;
+  @include lead-rule($c-steel);
+  margin-top: 0.6em;
+}
+
+.box > :first-child {
+  margin-top: 0;
+}
+
+.box > :last-child {
+  margin-bottom: 0;
+}
+
+// loudest step — used for caveats / risks
+.box.warm,
+.box.caution {
+  @include lead-rule($c-ice-hi);
+  background-color: rgba(106, 165, 255, 0.1);
+  border-color: rgba(169, 205, 255, 0.32);
+}
+
+// primary step — the point being made
+.box.accent,
+.box.key {
+  @include lead-rule($c-accent);
+  background-color: rgba(59, 130, 246, 0.09);
+  border-color: rgba(59, 130, 246, 0.34);
+}
+
+// supporting step
+.box.gold,
+.box.alt {
+  @include lead-rule($c-steel);
+  background-color: rgba(92, 130, 184, 0.08);
+  border-color: rgba(92, 130, 184, 0.3);
+}
+
+// quietest step
+.box.green,
+.box.deep {
+  @include lead-rule($c-deep);
+  background-color: rgba(31, 75, 143, 0.14);
+  border-color: rgba(31, 75, 143, 0.55);
 }
 
 .boxtitle {
   display: block;
-  color: $accent;
-  font-weight: 600;
-  font-size: 1.05em;
-  margin-bottom: 0.3em;
+  color: $c-ice;
+  font-weight: 700;
+  font-size: 1em;
+  letter-spacing: -0.012em;
+  margin-bottom: 0.32em;
 }
 
-.small {
-  font-size: 0.78em;
-}
-
-.smaller {
-  font-size: 0.66em;
-}
-
-.tiny {
-  font-size: 0.55em;
-  color: $muted;
-}
-
-.muted {
-  color: $muted;
-}
-
-.accent {
-  color: $accent;
-}
-
-.warm {
-  color: $warm;
-}
-
-.gold {
-  color: $gold;
-}
-
-.green {
-  color: $green;
-}
+// ── KPI row ─────────────────────────────────────────────────
 
 .kpi {
   display: flex;
   gap: 0.7em;
-  margin: 0.6em 0 0.3em 0;
+  margin: 0.7em 0 0.3em 0;
 }
 
 .kpi > div {
   @include card;
+  @include lead-rule($c-accent, 1.6em, 2px);
   flex: 1;
-  text-align: center;
+  min-width: 0;
+  text-align: left;
 }
 
 .kpi .num {
   display: block;
-  font-size: 1.5em;
-  font-weight: 600;
-  color: $accent;
-  line-height: 1.15;
+  font-size: 1.55em;
+  font-weight: 800;
+  color: $c-ice;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .kpi .lab {
+  @include label;
   display: block;
-  font-size: 0.55em;
-  color: $muted;
-  margin-top: 0.35em;
+  font-size: 0.5em;
+  color: $c-steel;
+  margin-top: 0.5em;
 }
+
+// ── Team ────────────────────────────────────────────────────
 
 .team {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.9em;
-  margin-top: 0.5em;
+  margin-top: 0.6em;
 }
 
 .team figure {
   @include card;
   margin: 0;
-  text-align: center;
+  text-align: left;
+  padding: 0.7em;
 }
 
 .team img {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 3px;
   display: block;
-  margin-bottom: 0.5em;
+  margin: 0 0 0.65em 0;
+  filter: grayscale(0.2) contrast(1.03);
 }
 
 .team .name {
-  font-size: 0.72em;
-  font-weight: 600;
-  color: #ffffff;
+  font-size: 26px;
+  font-weight: 700;
+  color: $c-ink-hi;
+  letter-spacing: -0.015em;
 }
 
 .team .role {
-  font-size: 0.56em;
-  color: $muted;
-  margin-top: 0.25em;
-  line-height: 1.35;
+  font-size: 20px;
+  color: $c-muted;
+  margin-top: 0.34em;
+  line-height: 1.4;
 }
 
-.box {
-  @include card;
-  margin-top: 0.5em;
-}
-
-.box.accent {
-  border-left: 3px solid $accent;
-}
-
-.box.warm {
-  border-left: 3px solid $warm;
-}
-
-.box.gold {
-  border-left: 3px solid $gold;
-}
-
-.box.green {
-  border-left: 3px solid $green;
-}
+// ── Tables ──────────────────────────────────────────────────
 
 .reveal table {
-  font-size: 0.62em;
+  font-size: 21px;
   border-collapse: collapse;
-  margin: 0.3em 0;
+  margin: 0.4em 0;
+  width: 100%;
 }
 
 .reveal table th {
-  color: $accent;
-  border-bottom: 1px solid $line;
-  font-weight: 600;
+  @include label;
+  color: $c-steel;
+  font-size: 19px;
+  border-bottom: 1px solid $c-accent;
+  padding: 0.35em 0.6em 0.35em 0;
+  text-align: left;
+  vertical-align: bottom;
 }
 
 .reveal table td {
-  border-bottom: 1px solid rgba(42, 42, 51, 0.55);
+  border-bottom: 1px solid $c-line-soft;
+  padding: 0.32em 0.6em 0.32em 0;
+  color: $c-ink;
 }
 
-.reveal table tr:last-child td {
+.reveal table tbody tr:last-child td {
   border-bottom: none;
 }
 
+.reveal table caption {
+  @include label;
+  color: $c-steel;
+  font-size: 0.72em;
+  text-align: left;
+  padding-bottom: 0.3em;
+}
+
+// ── Figures ─────────────────────────────────────────────────
+
 .reveal figure img,
 .reveal p > img {
-  border-radius: 8px;
+  border-radius: 4px;
+  border: 1px solid $c-line-soft;
   display: block;
   margin: 0 auto;
 }
 
 .reveal figcaption {
-  color: $muted;
-  font-size: 0.55em;
-  text-align: center;
-  margin-top: 0.3em;
-}
-
-.reveal .quarto-title-block,
-.reveal section.divider h1 {
-  color: #ffffff;
-}
-
-.reveal section.divider {
+  @include label;
+  color: $c-steel;
+  font-size: 0.52em;
   text-align: left;
+  margin-top: 0.45em;
 }
 
-.reveal section.divider h2 {
-  border-bottom: none;
-  font-size: 1.8em;
-}
+// ── Columns ─────────────────────────────────────────────────
 
 .reveal .columns {
-  gap: 1.1em;
+  gap: 1.2em;
+}
+
+.reveal .columns > .column {
+  min-width: 0;
 }
