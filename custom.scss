@@ -1,0 +1,295 @@
+/*-- scss:defaults --*/
+
+$body-bg: #0d0d10;
+$body-color: #e8e8ec;
+$link-color: #4cc9f0;
+$selection-bg: rgba(76, 201, 240, 0.3);
+
+$font-family-sans-serif:
+  "Inter",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Roboto,
+  "Helvetica Neue",
+  Arial,
+  sans-serif !default;
+$font-family-monospace: "JetBrains Mono", "SFMono-Regular", Consolas, monospace !default;
+
+$presentation-font-size-root: 30px;
+$presentation-heading-font: $font-family-sans-serif;
+$presentation-heading-color: #ffffff;
+$presentation-heading-font-weight: 600;
+$presentation-h1-font-size: 2.1em;
+$presentation-h2-font-size: 1.35em;
+$presentation-h3-font-size: 1.05em;
+$presentation-line-height: 1.35;
+
+$code-block-bg: #15151b;
+$code-color: #9ece6a;
+
+/*-- scss:mixins --*/
+
+@mixin card {
+  background: #15151b;
+  border: 1px solid #2a2a33;
+  border-radius: 10px;
+  padding: 0.7em 0.9em;
+}
+
+/*-- scss:rules --*/
+
+$accent: #4cc9f0;
+$warm: #f7768e;
+$gold: #e0af68;
+$green: #9ece6a;
+$violet: #bb9af7;
+$muted: #8a8a99;
+$line: #2a2a33;
+
+.reveal .slides section {
+  text-align: left;
+}
+
+.reveal h2 {
+  border-bottom: 1px solid $line;
+  padding-bottom: 0.25em;
+  margin-bottom: 0.55em;
+}
+
+.reveal h3 {
+  color: $accent;
+  margin-top: 0.2em;
+}
+
+.reveal ul,
+.reveal ol {
+  margin-left: 0.4em;
+}
+
+.reveal li {
+  margin-bottom: 0.32em;
+}
+
+.reveal li::marker {
+  color: $accent;
+}
+
+.reveal strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.reveal em {
+  color: $gold;
+  font-style: normal;
+}
+
+.reveal code {
+  background: #15151b;
+  border-radius: 4px;
+  padding: 0.05em 0.3em;
+  font-size: 0.88em;
+  color: $green;
+}
+
+.reveal .slide-number {
+  background: transparent;
+  color: $muted;
+  font-size: 0.6em;
+}
+
+.reveal .footer {
+  color: $muted;
+  font-size: 0.52em;
+}
+
+.reveal .title-slide h1.title {
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.reveal #title-slide .subtitle,
+.reveal .title-slide .subtitle {
+  color: $accent;
+  font-size: 1.05em;
+  margin-top: 0.35em;
+}
+
+.reveal .title-slide .quarto-title-authors {
+  color: $muted;
+}
+
+.boxtitle {
+  display: block;
+  color: $accent;
+  font-weight: 600;
+  font-size: 1.05em;
+  margin-bottom: 0.3em;
+}
+
+.small {
+  font-size: 0.78em;
+}
+
+.smaller {
+  font-size: 0.66em;
+}
+
+.tiny {
+  font-size: 0.55em;
+  color: $muted;
+}
+
+.muted {
+  color: $muted;
+}
+
+.accent {
+  color: $accent;
+}
+
+.warm {
+  color: $warm;
+}
+
+.gold {
+  color: $gold;
+}
+
+.green {
+  color: $green;
+}
+
+.kpi {
+  display: flex;
+  gap: 0.7em;
+  margin: 0.6em 0 0.3em 0;
+}
+
+.kpi > div {
+  @include card;
+  flex: 1;
+  text-align: center;
+}
+
+.kpi .num {
+  display: block;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: $accent;
+  line-height: 1.15;
+}
+
+.kpi .lab {
+  display: block;
+  font-size: 0.55em;
+  color: $muted;
+  margin-top: 0.35em;
+}
+
+.team {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.9em;
+  margin-top: 0.5em;
+}
+
+.team figure {
+  @include card;
+  margin: 0;
+  text-align: center;
+}
+
+.team img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.team .name {
+  font-size: 0.72em;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.team .role {
+  font-size: 0.56em;
+  color: $muted;
+  margin-top: 0.25em;
+  line-height: 1.35;
+}
+
+.box {
+  @include card;
+  margin-top: 0.5em;
+}
+
+.box.accent {
+  border-left: 3px solid $accent;
+}
+
+.box.warm {
+  border-left: 3px solid $warm;
+}
+
+.box.gold {
+  border-left: 3px solid $gold;
+}
+
+.box.green {
+  border-left: 3px solid $green;
+}
+
+.reveal table {
+  font-size: 0.62em;
+  border-collapse: collapse;
+  margin: 0.3em 0;
+}
+
+.reveal table th {
+  color: $accent;
+  border-bottom: 1px solid $line;
+  font-weight: 600;
+}
+
+.reveal table td {
+  border-bottom: 1px solid rgba(42, 42, 51, 0.55);
+}
+
+.reveal table tr:last-child td {
+  border-bottom: none;
+}
+
+.reveal figure img,
+.reveal p > img {
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+
+.reveal figcaption {
+  color: $muted;
+  font-size: 0.55em;
+  text-align: center;
+  margin-top: 0.3em;
+}
+
+.reveal .quarto-title-block,
+.reveal section.divider h1 {
+  color: #ffffff;
+}
+
+.reveal section.divider {
+  text-align: left;
+}
+
+.reveal section.divider h2 {
+  border-bottom: none;
+  font-size: 1.8em;
+}
+
+.reveal .columns {
+  gap: 1.1em;
+}
