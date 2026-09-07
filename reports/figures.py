@@ -1,3 +1,9 @@
+"""Presentation figures.
+
+Rendered on the deck palette defined in custom.scss so the plots sit flush on the
+slide background instead of reading as pasted-in grey boxes.
+"""
+
 import json
 import os
 from pathlib import Path
@@ -29,37 +35,83 @@ FINAL_LB = 1.6460816563
 CAP_AT = 180.0
 EXPERIMENT_ID = "6"
 
-BG = "#0d0d10"
-FG = "#e8e8ec"
-GRID = "#2a2a33"
-ACCENT = "#4cc9f0"
-WARM = "#f7768e"
-GOLD = "#e0af68"
-GREEN = "#9ece6a"
-VIOLET = "#bb9af7"
+# ── Palette ─────────────────────────────────────────────────
+# Ground and ink are taken verbatim from custom.scss. The categorical slots are
+# the dataviz reference dark ramp with slot 1 swapped for the deck accent; the
+# set passes lightness band / chroma floor / adjacent CVD / normal-vision /
+# contrast on the #04070e surface. Slots 1-3 additionally clear the all-pairs
+# gate, so scatter forms never use more than three of them.
+BG = "#04070e"  # slide background
+PANEL = "#0b1322"  # card fill
+GRID = "#182541"  # hairline
+GRID_SOFT = "#101a2e"  # quieter hairline
+FG = "#e8eefa"  # body ink
+FG_HI = "#ffffff"  # headings
+MUTED = "#8098bd"  # secondary ink
+STEEL = "#5c82b8"  # axis furniture
+ICE = "#a9cdff"  # callout ink
+
+S1 = "#3b82f6"  # blue    (deck accent)
+S2 = "#d95926"  # orange
+S3 = "#199e70"  # aqua
+S4 = "#c98500"  # yellow
+S5 = "#d55181"  # magenta
+CATEGORICAL = [S1, S2, S3, S4, S5]
+
+BLUE_HI = "#86b6ef"  # blue ordinal ramp, light -> dark
+BLUE_MID = "#3b82f6"
+BLUE_LO = "#1f4b8f"
 
 mpl.rcParams.update(
     {
-        "figure.dpi": 200,
-        "savefig.dpi": 200,
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
         "figure.facecolor": BG,
         "savefig.facecolor": BG,
         "axes.facecolor": BG,
         "axes.edgecolor": GRID,
-        "axes.labelcolor": FG,
+        "axes.linewidth": 0.8,
+        "axes.labelcolor": MUTED,
         "axes.titlecolor": FG,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
         "text.color": FG,
-        "xtick.color": FG,
-        "ytick.color": FG,
+        "xtick.color": MUTED,
+        "ytick.color": MUTED,
+        "xtick.labelcolor": MUTED,
+        "ytick.labelcolor": MUTED,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
         "grid.color": GRID,
-        "font.size": 9,
-        "axes.titlesize": 11,
+        "grid.linewidth": 0.7,
+        "font.family": "sans-serif",
+        # Manrope is the deck face; Inter is the closest installed stand-in.
+        "font.sans-serif": ["Manrope", "Inter", "DejaVu Sans"],
+        "font.size": 11,
+        "axes.titlesize": 13,
+        "axes.titleweight": "600",
+        "axes.titlepad": 10,
+        "axes.labelsize": 11,
+        "legend.fontsize": 10,
         "legend.frameon": False,
         "legend.labelcolor": FG,
-        "axes.prop_cycle": cycler(color=[ACCENT, GOLD, GREEN, WARM, VIOLET]),
+        "figure.titlesize": 14,
+        "figure.titleweight": "600",
+        "axes.prop_cycle": cycler(color=CATEGORICAL),
         "axes.axisbelow": True,
+        "lines.linewidth": 2.0,
+        "lines.markersize": 5,
+        "lines.solid_capstyle": "round",
     }
 )
+
+
+def style(ax, *, grid="both"):
+    """Recessive grid on one or both axes."""
+    ax.grid(True, axis=grid, color=GRID, lw=0.7)
+    ax.set_axisbelow(True)
+    return ax
+
 
 CONFIG = json.loads((SETUP / "config.json").read_text())
 LEVELS = json.loads((SETUP / "levels.json").read_text())
@@ -97,10 +149,12 @@ except Exception as exc:
 
 
 def save(fig, name):
-    fig.savefig(FIGS / name, bbox_inches="tight")
+    fig.savefig(FIGS / name, facecolor=BG)
     plt.close(fig)
     print(f"wrote reports/{name}")
 
+
+# ── Leaderboard timeline ────────────────────────────────────
 
 LB_MILESTONES = {
     "catboost_v1": "v1 CatBoost",
@@ -121,70 +175,122 @@ LB_MILESTONES["v48_newdir"] = "v48, shipped"
 steps = np.arange(len(lb_vals))
 best = np.minimum.accumulate(lb_vals)
 
-fig, ax = plt.subplots(1, 2, figsize=(13, 4.6))
-ax[0].plot(steps, lb_vals, "o", ms=3.5, color=ACCENT, alpha=0.55, label="submission")
-ax[0].plot(steps, best, "-", lw=2, color=WARM, label="best so far")
+# Milestone label placement. Early labels sit at a small pixel offset from their
+# point; the four end-of-run milestones bunch into the same corner, so they are
+# parked as a right-aligned column in the empty band under the plateau (explicit
+# data coordinates) and joined to their points with thin leaders.
+LB_LABEL_OFFSET = {
+    "catboost_v1": (12, 6, "left"),
+    "catboost_v2": (12, 6, "left"),
+    "v3_seasonal": (12, -20, "left"),
+    "v6_vall": (18, 11, "left"),
+    "v11_spaced": (14, 9, "left"),
+    "v21_banked": (14, 13, "left"),
+}
+LB_LABEL_ANCHOR = {
+    "v32_seqopt": (49.0, 1.64700),
+    "v41_ridge": (49.0, 1.64645),
+    "v43_calib": (49.0, 1.64590),
+    "v48_newdir": (49.0, 1.64535),
+}
+
+fig, ax = plt.subplots(1, 2, figsize=(14, 5.0), layout="constrained")
+ax[0].plot(steps, lb_vals, "o", ms=4.5, color=S1, alpha=0.75, label="submission", zorder=3)
+ax[0].plot(steps, best, "-", lw=2.2, color=S2, label="best so far", zorder=4)
 ax[0].set_ylabel("public LB, RMSLE")
 ax[0].set_xlabel("submission order")
-ax[0].set_title("64 scored submissions, 1.840 to 1.646")
+ax[0].set_title(f"{len(lb_vals)} scored submissions, {max(lb_vals):.3f} to {min(lb_vals):.3f}")
 ax[0].legend(loc="upper right")
+ax[0].set_xlim(-2.5, steps.max() + 2.5)
+
 zoom = np.array(lb_vals) < 1.6510
-ax[1].plot(steps[zoom], np.array(lb_vals)[zoom], "o", ms=4, color=ACCENT, alpha=0.55)
-ax[1].plot(steps, best, "-", lw=2, color=WARM)
-ax[1].set_ylim(1.6455, 1.6510)
-ax[1].set_xlim(steps[zoom].min() - 1, steps.max() + 1)
+ax[1].plot(steps[zoom], np.array(lb_vals)[zoom], "o", ms=5, color=S1, alpha=0.75, zorder=3)
+ax[1].plot(steps, best, "-", lw=2.2, color=S2, zorder=4)
+ax[1].set_ylim(1.6452, 1.6513)
+ax[1].set_xlim(steps[zoom].min() - 2, steps.max() + 3)
 ax[1].set_xlabel("submission order")
+ax[1].set_ylabel("public LB, RMSLE")
 ax[1].set_title(f"the last 0.005, where {int(zoom.sum())} of the submissions went")
+
+LEADER = {"arrowstyle": "-", "color": STEEL, "lw": 0.7, "shrinkA": 2, "shrinkB": 4}
 for key, label in LB_MILESTONES.items():
     if key not in lb_names:
         continue
     i = lb_names.index(key)
     target = ax[1] if lb_vals[i] < 1.6510 else ax[0]
-    target.annotate(
-        label,
-        (i, lb_vals[i]),
-        textcoords="offset points",
-        xytext=(6, 7),
-        fontsize=7,
-        color=GOLD,
-    )
+    common = {"fontsize": 9.5, "color": ICE, "va": "center", "zorder": 5}
+    if key in LB_LABEL_ANCHOR:
+        target.annotate(
+            label,
+            (i, lb_vals[i]),
+            xytext=LB_LABEL_ANCHOR[key],
+            textcoords="data",
+            ha="right",
+            arrowprops=LEADER,
+            **common,
+        )
+    else:
+        dx, dy, ha = LB_LABEL_OFFSET[key]
+        target.annotate(
+            label,
+            (i, lb_vals[i]),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            ha=ha,
+            arrowprops=LEADER if abs(dy) > 12 else None,
+            **common,
+        )
 for a in ax:
-    a.grid(alpha=0.25)
+    style(a)
 save(fig, "lb_timeline.png")
+
+# ── Anchor levels ───────────────────────────────────────────
 
 lv_anchor = [entry["anchor"] for entry in LEVELS]
 lv_n = np.array([entry["n_cohort"] for entry in LEVELS], dtype=float)
 lv_pos = np.array([entry["p_positive"] for entry in LEVELS])
 lv_mu = np.array([entry["mean_log1p"] for entry in LEVELS])
 xs = np.arange(len(LEVELS))
+held_from = len(LEVELS) - 3.5
 
-fig, ax = plt.subplots(1, 3, figsize=(13.5, 3.9))
-ax[0].plot(xs, lv_n / 1000.0, "o-", ms=3, color=ACCENT)
-ax[0].set_title("cohort size, thousands")
-ax[0].set_ylabel("users with 30d activity and 60d history")
-ax[1].plot(xs, lv_pos, "o-", ms=3, color=GOLD)
-ax[1].set_title("share of the cohort with positive target")
-ax[2].plot(xs, lv_mu, "o-", ms=3, color=WARM)
-ax[2].set_title("mu(anchor) = mean log1p(gmv) over 30 days")
-for a in ax:
+fig, ax = plt.subplots(1, 3, figsize=(15, 5.9), layout="constrained")
+panels = [
+    (lv_n / 1000.0, S1, "cohort size", "users, thousands"),
+    (lv_pos, S3, "share of the cohort with positive target", ""),
+    (lv_mu, S4, "mu(anchor) = mean log1p(gmv) over 30 days", ""),
+]
+for a, (series, color, title, ylabel) in zip(ax, panels, strict=True):
+    a.axvspan(held_from, xs.max() + 0.6, color=STEEL, alpha=0.16, lw=0, zorder=0)
+    a.plot(xs, series, "o-", ms=4, color=color, zorder=3)
+    a.set_title(title)
+    a.set_ylabel(ylabel)
+    a.set_xlim(-0.6, xs.max() + 0.6)
     a.set_xticks(xs[::4])
-    a.set_xticklabels([lv_anchor[i][2:] for i in xs[::4]], rotation=45, fontsize=7)
-    a.grid(alpha=0.25)
-    a.axvline(len(LEVELS) - 3.5, color=VIOLET, ls="--", lw=1)
+    a.set_xticklabels([lv_anchor[i][2:] for i in xs[::4]], rotation=45, ha="right", fontsize=9)
+    style(a)
+
+# One horizontal callout for the held-out band, inside the shaded region.
 ax[0].annotate(
-    "3 held-out anchors",
-    (len(LEVELS) - 3.4, lv_n.min() / 1000.0),
-    color=VIOLET,
-    fontsize=7,
-    rotation=90,
+    "3 held-out\nanchors",
+    xy=((held_from + xs.max() + 0.6) / 2, 0.035),
+    xycoords=("data", "axes fraction"),
+    ha="center",
+    va="bottom",
+    fontsize=9.5,
+    color=ICE,
+    linespacing=1.35,
 )
 fig.suptitle(
     f"{len(LEVELS)} training anchors: the level moves with the calendar, "
-    "the panel grows by selection",
-    y=1.04,
+    "the panel grows by selection"
 )
 save(fig, "anchor_levels.png")
 
+# ── Member weights ──────────────────────────────────────────
+
+# Colour follows the model family, so a member keeps its hue across both panels.
+# The three gradient-boosting libraries are steps of one blue ordinal ramp; the
+# scatter collapses to the three family hues, which is the all-pairs-safe set.
 KIND_OF = {}
 for name in MEMBER_ORDER:
     if name.startswith(("cat", "v3_cat")):
@@ -198,36 +304,90 @@ for name in MEMBER_ORDER:
     else:
         KIND_OF[name] = "neural tabular"
 KIND_COLOR = {
-    "catboost": ACCENT,
-    "xgboost": GREEN,
-    "lightgbm": GOLD,
-    "transformer": WARM,
-    "neural tabular": VIOLET,
+    "catboost": BLUE_HI,
+    "xgboost": BLUE_MID,
+    "lightgbm": BLUE_LO,
+    "transformer": S2,
+    "neural tabular": S3,
 }
+FAMILY_OF = {
+    "catboost": "gradient boosting",
+    "xgboost": "gradient boosting",
+    "lightgbm": "gradient boosting",
+    "transformer": "transformer",
+    "neural tabular": "neural tabular",
+}
+FAMILY_COLOR = {"gradient boosting": S1, "transformer": S2, "neural tabular": S3}
+FAMILY_MARKER = {"gradient boosting": "o", "transformer": "s", "neural tabular": "^"}
+
 w_kept = np.zeros(len(MEMBER_ORDER))
 w_kept[np.array(NNLS_KEPT["columns"])] = np.array(NNLS_KEPT["weights"])
 order = np.argsort(-w_kept)[: len(KEPT_MEMBERS)][::-1]
 cv_all = np.array([MEMBER_CV[n]["POOLED_ALL"] for n in MEMBER_ORDER])
 
-fig, ax = plt.subplots(1, 2, figsize=(13, 4.6))
-ax[0].barh(
-    range(len(order)),
-    w_kept[order],
-    color=[KIND_COLOR[KIND_OF[MEMBER_ORDER[i]]] for i in order],
-)
-ax[0].set_yticks(range(len(order)), [MEMBER_ORDER[i] for i in order], fontsize=8)
+fig, ax = plt.subplots(1, 2, figsize=(14, 5.2), layout="constrained")
+bar_colors = [KIND_COLOR[KIND_OF[MEMBER_ORDER[i]]] for i in order]
+ax[0].barh(range(len(order)), w_kept[order], color=bar_colors, height=0.72)
+ax[0].set_yticks(range(len(order)), [MEMBER_ORDER[i] for i in order], fontsize=10)
+ax[0].set_ylim(-0.7, len(order) - 0.3)
 ax[0].set_xlabel("non-negative least squares weight")
 ax[0].set_title(f"{len(KEPT_MEMBERS)} of {len(MEMBER_ORDER)} members survive the solve")
-for kind, color in KIND_COLOR.items():
-    m = np.array([KIND_OF[n] == kind for n in MEMBER_ORDER])
-    ax[1].scatter(cv_all[m], w_kept[m], s=42, color=color, label=kind, alpha=0.9)
+ax[0].set_xlim(0, w_kept.max() * 1.14)
+for rank, i in enumerate(order):
+    ax[0].annotate(
+        f"{w_kept[i]:.3f}",
+        (w_kept[i], rank),
+        xytext=(5, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=9,
+        color=MUTED,
+    )
+kept_kinds = [k for k in KIND_COLOR if any(KIND_OF[MEMBER_ORDER[i]] == k for i in order)]
+ax[0].legend(
+    handles=[mpl.patches.Patch(facecolor=KIND_COLOR[k], label=k) for k in kept_kinds],
+    loc="lower right",
+    fontsize=9,
+)
+style(ax[0], grid="x")
+
+for family, color in FAMILY_COLOR.items():
+    m = np.array([FAMILY_OF[KIND_OF[n]] == family for n in MEMBER_ORDER])
+    ax[1].scatter(
+        cv_all[m],
+        w_kept[m],
+        s=70,
+        marker=FAMILY_MARKER[family],
+        facecolor=color,
+        edgecolor=BG,
+        linewidth=1.2,
+        label=family,
+        alpha=0.95,
+        zorder=3,
+    )
 ax[1].set_xlabel("pooled out-of-fold RMSLE over 7 anchors")
 ax[1].set_ylabel("weight in the blend")
 ax[1].set_title("a better member is not a more useful one")
-ax[1].legend(fontsize=8, loc="upper right")
-for a in ax:
-    a.grid(alpha=0.25)
+n_zero = int((w_kept == 0).sum())
+ax[1].set_ylim(-0.034, w_kept.max() * 1.12)
+ax[1].set_yticks(np.arange(0.0, w_kept.max() * 1.12, 0.025))
+ax[1].annotate(
+    f"{n_zero} members solve to exactly 0",
+    xy=(cv_all[w_kept == 0].mean(), 0.0),
+    xytext=(cv_all[w_kept == 0].mean(), -0.024),
+    textcoords="data",
+    ha="center",
+    va="center",
+    fontsize=9.5,
+    color=ICE,
+    arrowprops={"arrowstyle": "-", "color": STEEL, "lw": 0.7, "shrinkA": 3, "shrinkB": 6},
+)
+ax[1].legend(loc="upper right")
+ax[1].margins(x=0.06)
+style(ax[1])
 save(fig, "member_weights.png")
+
+# ── Out-of-fold panel ───────────────────────────────────────
 
 OOF_Z, OOF_Y = {}, {}
 COHORT = np.load(SETUP / "cohort.npy")
@@ -263,44 +423,34 @@ print(
     + str({k: round(v, 6) for k, v in BOOST_GAIN.items()})
 )
 
-fig, ax = plt.subplots(1, 3, figsize=(13.5, 4.1))
-for a in EVAL_ANCHORS:
+# ── Blend calibration ───────────────────────────────────────
+
+fig, ax = plt.subplots(1, 3, figsize=(15, 4.8), layout="constrained")
+for a, color in zip(EVAL_ANCHORS, CATEGORICAL, strict=False):
     y, pr = OOF_Y[a], OOF_PRED[a]
     edges = np.quantile(pr, np.linspace(0, 1, 21))
     idx = np.clip(np.digitize(pr, edges[1:-1]), 0, 19)
-    ax[0].plot(
-        [pr[idx == i].mean() for i in range(20)],
-        [y[idx == i].mean() for i in range(20)],
-        "o-",
-        ms=3,
-        label=a,
-    )
-    ax[1].plot(
-        [pr[idx == i].mean() for i in range(20)],
-        [(y[idx == i] == 0).mean() for i in range(20)],
-        "o-",
-        ms=3,
-    )
-    ax[2].plot(
-        [pr[idx == i].mean() for i in range(20)],
-        [y[idx == i].std() for i in range(20)],
-        "o-",
-        ms=3,
-    )
-ax[0].plot([0, 6], [0, 6], "--", lw=1, color=GRID)
+    centres = [pr[idx == i].mean() for i in range(20)]
+    ax[0].plot(centres, [y[idx == i].mean() for i in range(20)], "o-", ms=4, color=color, label=a)
+    ax[1].plot(centres, [(y[idx == i] == 0).mean() for i in range(20)], "o-", ms=4, color=color)
+    ax[2].plot(centres, [y[idx == i].std() for i in range(20)], "o-", ms=4, color=color)
+ax[0].plot([0, 6], [0, 6], "--", lw=1.2, color=STEEL, zorder=1, label="perfect calibration")
 ax[0].set_xlabel("predicted log1p gmv")
-ax[0].set_ylabel("realised")
+ax[0].set_ylabel("realised log1p gmv")
 ax[0].set_title("calibration by ventile")
-ax[0].legend(fontsize=7)
 ax[1].set_xlabel("predicted log1p gmv")
 ax[1].set_ylabel("share with zero gmv")
 ax[1].set_title("zero mass against the prediction")
 ax[2].set_xlabel("predicted log1p gmv")
 ax[2].set_ylabel("realised sd")
 ax[2].set_title("irreducible spread")
-for a in ax:
-    a.grid(alpha=0.25)
+for a_ in ax:
+    style(a_)
+handles, labels = ax[0].get_legend_handles_labels()
+fig.legend(handles, labels, loc="outside upper right", ncols=4, fontsize=10)
 save(fig, "blend_calibration.png")
+
+# ── Error structure ─────────────────────────────────────────
 
 a = EVAL_ANCHORS[-1]
 y, pr = OOF_Y[a], OOF_PRED[a]
@@ -316,61 +466,79 @@ total = float((res**2).sum())
 share_err = [float((res[m] ** 2).sum()) / total for m in BUCKETS.values()]
 share_n = [float(m.mean()) for m in BUCKETS.values()]
 
-fig, ax = plt.subplots(figsize=(9.5, 4.3))
+fig, ax = plt.subplots(figsize=(11, 5.0), layout="constrained")
 pos = np.arange(len(BUCKETS))
-ax.bar(pos - 0.2, share_n, 0.4, color=ACCENT, label="share of users")
-ax.bar(pos + 0.2, share_err, 0.4, color=WARM, label="share of squared error")
+ax.bar(pos - 0.21, share_n, 0.38, color=S1, label="share of users")
+ax.bar(pos + 0.21, share_err, 0.38, color=S2, label="share of squared error")
 for i, (sn, se) in enumerate(zip(share_n, share_err, strict=True)):
     ax.annotate(
         f"{sn:.1%}",
-        (i - 0.2, sn),
+        (i - 0.21, sn),
         ha="center",
-        fontsize=7.5,
-        xytext=(0, 3),
+        fontsize=9.5,
+        color=MUTED,
+        xytext=(0, 4),
         textcoords="offset points",
     )
     ax.annotate(
         f"{se:.1%}",
-        (i + 0.2, se),
+        (i + 0.21, se),
         ha="center",
-        fontsize=7.5,
-        xytext=(0, 3),
+        fontsize=9.5,
+        color=MUTED,
+        xytext=(0, 4),
         textcoords="offset points",
     )
-ax.set_xticks(pos, list(BUCKETS), fontsize=8)
+ax.set_xticks(pos, list(BUCKETS), fontsize=10)
+ax.set_ylim(0, max(*share_n, *share_err) * 1.14)
 ax.set_ylabel("share")
 ax.set_title(f"where the error lives, anchor {a}, held-out RMSLE {np.sqrt((res**2).mean()):.4f}")
-ax.legend(fontsize=8)
-ax.grid(alpha=0.25, axis="y")
+ax.legend(loc="upper right")
+style(ax, grid="y")
 save(fig, "error_structure.png")
+
+# ── Feature families ────────────────────────────────────────
 
 if INTERPRET:
     perm = {k[len("perm_group_") :]: v for k, v in INTERPRET.items() if k.startswith("perm_group_")}
     fam = {
         k[len("family_share_") :]: v for k, v in INTERPRET.items() if k.startswith("family_share_")
     }
-    keys = sorted(perm, key=lambda k: perm[k])
-    fig, ax = plt.subplots(1, 2, figsize=(13, 4.6))
-    ax[0].barh(
-        range(len(keys)),
-        [perm[k] for k in keys],
-        color=[WARM if k == "daily_tensor" else ACCENT for k in keys],
+    fig, ax = plt.subplots(1, 2, figsize=(14, 5.2), layout="constrained")
+    for a_, data, xlabel, title in (
+        (
+            ax[0],
+            perm,
+            "mean absolute shift of the blend, z units",
+            "group permutation on 20000 users",
+        ),
+        (ax[1], fam, "share of mean absolute attribution", "attribution share, same families"),
+    ):
+        keys = sorted(data, key=lambda k: data[k])
+        vals = [data[k] for k in keys]
+        a_.barh(
+            range(len(keys)),
+            vals,
+            height=0.7,
+            color=[S2 if k == "daily_tensor" else S1 for k in keys],
+        )
+        a_.set_yticks(range(len(keys)), keys, fontsize=10)
+        a_.set_ylim(-0.7, len(keys) - 0.3)
+        a_.set_xlim(0, max(vals) * 1.06)
+        a_.set_xlabel(xlabel)
+        a_.set_title(title)
+        style(a_, grid="x")
+    ax[0].legend(
+        handles=[
+            mpl.patches.Patch(facecolor=S2, label="raw daily tensor"),
+            mpl.patches.Patch(facecolor=S1, label="tabular family"),
+        ],
+        loc="lower right",
+        fontsize=9,
     )
-    ax[0].set_yticks(range(len(keys)), keys, fontsize=8)
-    ax[0].set_xlabel("mean absolute shift of the blend, z units")
-    ax[0].set_title("group permutation on 20000 users")
-    keys2 = sorted(fam, key=lambda k: fam[k])
-    ax[1].barh(
-        range(len(keys2)),
-        [fam[k] for k in keys2],
-        color=[WARM if k == "daily_tensor" else GREEN for k in keys2],
-    )
-    ax[1].set_yticks(range(len(keys2)), keys2, fontsize=8)
-    ax[1].set_xlabel("share of mean absolute attribution")
-    ax[1].set_title("attribution share, same families")
-    for a_ in ax:
-        a_.grid(alpha=0.25, axis="x")
     save(fig, "feature_families.png")
+
+# ── Exchange rate ───────────────────────────────────────────
 
 names_a, rho_a, lb_a = [], [], []
 for key, (stem, lb) in SCORES.items():
@@ -390,29 +558,51 @@ b_a = np.asarray(rho_a) * SIGMA
 lb_a = np.asarray(lb_a)
 b_grid = np.linspace(1.55, 1.68, 400)
 
-fig, ax = plt.subplots(1, 2, figsize=(13, 4.6))
-ax[0].plot(b_grid, np.sqrt(W_TOTAL - b_grid**2), "-", lw=2, color=ACCENT, label="sqrt(W - B^2)")
-ax[0].scatter(b_a, lb_a, s=26, color=GOLD, alpha=0.85, label="scored submissions")
+fig, ax = plt.subplots(1, 2, figsize=(14, 5.2), layout="constrained")
+ax[0].plot(b_grid, np.sqrt(W_TOTAL - b_grid**2), "-", lw=2.2, color=S1, label=r"$\sqrt{W - B^2}$")
+ax[0].scatter(
+    b_a,
+    lb_a,
+    s=44,
+    color=S2,
+    alpha=0.9,
+    edgecolor=BG,
+    linewidth=0.8,
+    label="scored submissions",
+    zorder=3,
+)
 ax[0].set_xlabel("B = Cov(z, u), recovered from the score")
 ax[0].set_ylabel("public LB, RMSLE")
 ax[0].set_title(f"W = {W_TOTAL}, m = {TARGET_MEAN}, pinned by two constant probes")
-ax[0].legend(fontsize=8)
+ax[0].legend(loc="upper right")
 ax[0].set_xlim(1.618, 1.6325)
 ax[0].set_ylim(1.6455, 1.6575)
+
 gains = np.array([0.0, 0.0025, 0.005, 0.01])
 b0 = 1.6270516
-ax[1].plot(gains * 100, np.sqrt(W_TOTAL - (b0 * (1 + gains)) ** 2), "o-", lw=2, color=WARM)
-for g in gains:
-    s = float(np.sqrt(W_TOTAL - (b0 * (1 + g)) ** 2))
+gain_pct = gains * 100
+gain_lb = np.sqrt(W_TOTAL - (b0 * (1 + gains)) ** 2)
+ax[1].plot(gain_pct, gain_lb, "o-", lw=2.2, ms=7, color=S2, zorder=3)
+for i, (gx, gy) in enumerate(zip(gain_pct, gain_lb, strict=True)):
+    last = i == len(gains) - 1
     ax[1].annotate(
-        f"{s:.6f}", (g * 100, s), textcoords="offset points", xytext=(8, 4), fontsize=8, color=GOLD
+        f"{gy:.6f}",
+        (gx, gy),
+        textcoords="offset points",
+        xytext=(-10, -16) if last else (10, 8),
+        ha="right" if last else "left",
+        fontsize=10,
+        color=ICE,
     )
 ax[1].set_xlabel("relative gain in B, percent")
 ax[1].set_ylabel("public LB, RMSLE")
 ax[1].set_title("exchange rate: 1 percent of B is worth 0.0165 RMSLE")
+ax[1].margins(x=0.10, y=0.14)
 for a_ in ax:
-    a_.grid(alpha=0.25)
+    style(a_)
 save(fig, "exchange_rate.png")
+
+# ── Segments ────────────────────────────────────────────────
 
 x_names = json.loads((FEAT / "names_x.json").read_text())
 e_names = json.loads((FEAT / "names_e.json").read_text())
@@ -448,33 +638,70 @@ print("wrote reports/segments.json")
 if INTERPRET:
     seg = {k[len("seg_rmsle_") :]: v for k, v in INTERPRET.items() if k.startswith("seg_rmsle_")}
     keys = sorted(seg, key=lambda k: seg[k])
-    fig, ax = plt.subplots(figsize=(9.5, 4.6))
+    pooled = INTERPRET["eval_rmsle"]
+    # Labels live in a reserved column to the right of every bar, so the pooled
+    # rule never crosses text.
+    label_x = max(seg.values()) * 1.14
+    fig, ax = plt.subplots(figsize=(10, 5.4), layout="constrained")
     ax.barh(
         range(len(keys)),
         [seg[k] for k in keys],
-        color=[GOLD if seg[k] < INTERPRET["eval_rmsle"] else WARM for k in keys],
+        height=0.72,
+        color=[S1 if seg[k] < pooled else S2 for k in keys],
+        zorder=2,
     )
-    ax.set_yticks(range(len(keys)), keys, fontsize=9)
+    ax.set_yticks(range(len(keys)), keys, fontsize=11)
+    ax.set_ylim(-0.7, len(keys) + 0.5)
     for i, k in enumerate(keys):
         ax.annotate(
-            f"{seg[k]:.3f}   {shares[k]:.1%} of the cohort",
-            (seg[k], i),
+            f"{seg[k]:.3f}",
+            (label_x, i),
             va="center",
-            fontsize=8,
-            xytext=(6, 0),
-            textcoords="offset points",
+            ha="left",
+            fontsize=11,
+            color=FG,
         )
-    ax.axvline(INTERPRET["eval_rmsle"], color=FG, ls="--", lw=1.2)
+        ax.annotate(
+            f"{shares[k]:.1%}",
+            (label_x + 0.34, i),
+            va="center",
+            ha="left",
+            fontsize=11,
+            color=MUTED,
+        )
+    for x, header in ((label_x, "RMSLE"), (label_x + 0.34, "of cohort")):
+        ax.annotate(
+            header,
+            (x, len(keys) - 0.35),
+            va="center",
+            ha="left",
+            fontsize=9.5,
+            color=STEEL,
+        )
+    ax.axvline(pooled, color=ICE, ls="--", lw=1.4, zorder=3)
     ax.annotate(
-        f"pooled {INTERPRET['eval_rmsle']:.4f}",
-        (INTERPRET["eval_rmsle"], len(keys) - 0.4),
-        color=FG,
-        fontsize=8,
-        xytext=(-72, 0),
+        f"pooled {pooled:.4f}",
+        (pooled, len(keys) - 0.55),
+        xytext=(-8, 0),
         textcoords="offset points",
+        color=ICE,
+        fontsize=10,
+        ha="right",
+        va="center",
     )
-    ax.set_xlim(0, 2.45)
+    ax.set_xlim(0, label_x + 0.72)
+    ax.set_xticks(np.arange(0, 2.1, 0.5))
     ax.set_xlabel("held-out RMSLE over the 3 evaluation anchors")
     ax.set_title("error by behavioural segment, segments overlap")
-    ax.grid(alpha=0.25, axis="x")
+    # outside the axes: inside, the pooled rule cuts straight through the labels
+    fig.legend(
+        handles=[
+            mpl.patches.Patch(facecolor=S2, label="worse than pooled"),
+            mpl.patches.Patch(facecolor=S1, label="better than pooled"),
+        ],
+        loc="outside upper left",
+        ncols=2,
+        fontsize=9.5,
+    )
+    style(ax, grid="x")
     save(fig, "segment_rmsle.png")
