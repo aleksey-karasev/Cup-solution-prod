@@ -100,10 +100,6 @@ $line: $c-line;
   -webkit-font-smoothing: antialiased;
 }
 
-.reveal .slides {
-  counter-reset: section-no;
-}
-
 .reveal .slides section {
   text-align: left;
 }
@@ -204,7 +200,6 @@ $line: $c-line;
 // ── Section dividers ────────────────────────────────────────
 
 .reveal section.divider {
-  counter-increment: section-no;
   text-align: left;
 }
 
@@ -224,7 +219,7 @@ $line: $c-line;
 .reveal section.divider h1::before,
 .reveal section.divider h2::before {
   @include label;
-  content: "Раздел " counter(section-no, decimal-leading-zero);
+  content: "Раздел";
   display: block;
   width: fit-content;
   font-size: 0.28em;
@@ -233,6 +228,13 @@ $line: $c-line;
   border-top: 3px solid $c-accent;
   padding-top: 0.8em;
   margin-bottom: 1.4em;
+}
+
+@for $i from 1 through 9 {
+  .reveal section.divider.s0#{$i} h1::before,
+  .reveal section.divider.s0#{$i} h2::before {
+    content: "Раздел 0#{$i}";
+  }
 }
 
 .reveal section.divider.no-kicker h1::before,
@@ -268,8 +270,8 @@ $line: $c-line;
 }
 
 .reveal ol {
-  margin-left: 0.9em;
-  padding-left: 0;
+  margin-left: 0;
+  padding-left: 1.6em;
 }
 
 .reveal li {
@@ -534,6 +536,11 @@ $line: $c-line;
 
 .team img {
   width: 100%;
+  // photos arrive at mixed aspect ratios; crop to a common square so every card
+  // is the same height and the name/role rows stay on one baseline
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center 25%;
   border-radius: 3px;
   display: block;
   margin: 0 0 0.65em 0;

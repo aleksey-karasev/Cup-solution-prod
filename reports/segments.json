@@ -1,0 +1,12 @@
+{
+ "whale": 0.01,
+ "regular": 0.476328,
+ "lapsing": 0.059004,
+ "never_ordered": 0.127884,
+ "search_only_no_order": 0.025236,
+ "reactivated": 0.020916,
+ "thin_history": 0.020692,
+ "barely_active": 0.130956,
+ "cart_no_order": 0.185104,
+ "single_order": 0.066836
+}
